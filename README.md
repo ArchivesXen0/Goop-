@@ -1,2 +1,0 @@
-# Goop-
-Serverside Module 🛡💻
