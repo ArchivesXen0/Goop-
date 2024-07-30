@@ -1,1 +1,42 @@
 -- lua! one of my first ever major projects
+
+
+local CodeExecutor = {}
+
+-- Function to execute code from a GitHub URL
+function CodeExecutor.ExecuteCodeFromURL(url, code)
+    -- Fetch the Goop module script from the URL
+    local success, goopScript = pcall(function()
+        return game:HttpGet(url)
+    end)
+
+    if success then
+        -- Load the Goop module
+        local goopFunc, err = loadstring(goopScript)
+        if goopFunc then
+            local goopEnv = {}
+            setfenv(goopFunc, goopEnv) -- Optional: Set environment if needed
+            local success, execErr = pcall(goopFunc)
+            if not success then
+                warn("Error executing Goop module: ", execErr)
+            end
+
+            -- Execute the provided code using the Goop module
+            local executeCodeFunc = goopEnv and goopEnv.ExecuteCode
+            if executeCodeFunc then
+                local success, execErr = pcall(executeCodeFunc, code)
+                if not success then
+                    warn("Error executing code: ", execErr)
+                end
+            else
+                warn("ExecuteCode function not found in Goop module")
+            end
+        else
+            warn("Error loading Goop module: ", err)
+        end
+    else
+        warn("Failed to fetch Goop module from URL: ", goopScript)
+    end
+end
+
+return CodeExecutor
